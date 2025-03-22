@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Register</title>
+</head>
+<body>
+<div>
+    <h3>Register</h3>
+    <label> Name</label>
+    <input type="text" id="ename"/>
+    <label> Phno</label>
+    <input type="number" id="phno"/>
+    <label> Addr</label>
+    <input type="text" id="eaddr"/>
+    <p id="result"></p>
+
+    <button onClick="register()">Register</button>
+</div>
+
+  <div>
+   <button onClick="showData()">ShowAllData</button>
+  </div>
+
+<script>
+async function register() {
+    const ename = document.getElementById("ename").value;
+    const phno = document.getElementById("phno").value;
+    const eaddr = document.getElementById("eaddr").value;
+
+    if (!ename || !phno || !eaddr) {
+        document.getElementById("result").innerText = "Fill all details!";
+        return; // Stop function execution
+    }
+    
+    
+    
+    const data = {
+        ename: ename,
+        phno: phno,
+        eaddr: eaddr
+    };
+
+    try {
+        const response = await fetch("http://localhost:5051/emp/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const resultText = await response.text();
+
+        if (!response.ok) {
+            throw new Error(`Server Error: ${resultText}`);
+        }
+
+        document.getElementById("result").innerText = "Registration Successful!";
+    } catch (error) {
+        document.getElementById("result").innerText = "Error: " + error.message;
+    }
+}
+
+
+async function showData() {
+    try {
+        const response = await fetch("http://localhost:5051/emp/showdata", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch data");
+        }
+
+        const data = await response.json(); // Convert response to JSON
+
+        // Select the result div
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = ""; // Clear previous data
+
+        // Assuming 'data' is an array of objects with 'name', 'phno', and 'addr'
+        data.forEach(emp => {
+            const empInfo = `<p>Name: ${emp.ename}, Phone: ${emp.phno}, Address: ${emp.eaddr}</p>`;
+            resultDiv.innerHTML += empInfo; // Append employee data
+        });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        document.getElementById("result").innerText = "Error fetching data";
+    }
+}
+
+
+</script>
+</body>
+</html>
